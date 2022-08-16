@@ -8,19 +8,19 @@
 
 #   Backup mode before editing.
 #   0 = never backup, 1 = always backup, 2 = ask every time (default).
-    backup_mode=1
+    backup_mode=2
 
 #   Edit auto confirmation.
 #   0 = cancel, 1 = confirm, 2 = ask every time (default).
-    edit_confirm=1
+    edit_confirm=2
 
 #   Restore Backup confirmation.
 #   0 = cancel, 1 = confirm, 2 = ask every time (default).
-    restore_confirm=1
+    restore_confirm=2
 
 #   Loop mode - return to main menu after editing or restoring backup.
 #   0 = exit after action, 1 = main menu after action (default)
-    loop_mode=0
+    loop_mode=1
 #╰───────────────────────────────────────────────────────────────────────╯
 
 main () {
