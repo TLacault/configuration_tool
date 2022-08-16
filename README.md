@@ -38,18 +38,14 @@
 <!-- Project Description -->
 ## Project Description
 
-* <strong>
-The objective of this project is to create a tool that could make configuration a bit easier.
+* <strong>The objective of this project is to create a tool that could make configuration a bit easier.
 Some of the features I want to add :
-- auto saving dotfiles, upload them on a git repo.
-- edit dotfiles / configuration files via a menu.
-- copy dotfiles from a git repo and apply them to local machine.
-- auto install dependencies for external dotfiles.
-</strong>
+    - auto saving dotfiles, upload them on a git repo.
+    - edit dotfiles / configuration files via a menu.
+    - copy dotfiles from a git repo and apply them to local machine.
+    - auto install dependencies for external dotfiles.</strong>
 
-* <strong>
-I will continue to update this script till these objectives are implemented.
-</strong>
+* <strong>I will continue to update this script till these objectives are implemented.</strong>
 
 <br />
 
