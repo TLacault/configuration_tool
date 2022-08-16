@@ -26,7 +26,7 @@ main_menu () {
 
 config_menu () {
     clear
-    printf ">>  Curently editing : \033[1m$file_path\033[0m\n"
+    printf ">>  Curently editing : \033[1m$file_path\033[0m\n\n"
     printf "╭──────────────╮  ╭────────────────╮  ╭───────────────────╮  ╭─────────╮\n"
     printf "│ 1) Edit File │  │ 2) Backup File │  │ 3) Restore backup │  │ 4) Back │\n"
     printf "╰──────────────╯  ╰────────────────╯  ╰───────────────────╯  ╰─────────╯\n"
