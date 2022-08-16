@@ -45,7 +45,7 @@ Some of the features I want to add :
     - copy dotfiles from a git repo and apply them to local machine.
     - auto install dependencies for external dotfiles.</strong>
 
-* <strong>I will continue to update this script till these objectives are implemented.</strong>
+* <strong>I will continue to update this script till these features are implemented.</strong>
 
 <br />
 
