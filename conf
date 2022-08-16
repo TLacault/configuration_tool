@@ -1,0 +1,121 @@
+#!/bin/bash
+
+#╭──────────────────────────── Configuration ────────────────────────────╮
+#   Editor to use for the configuration files.
+#   Default is : emacs -nw
+    editor=emacs
+    flags=-nw
+
+#   Backup mode before editing.
+#   0 = never backup, 1 = always backup, 2 = ask every time (default).
+    backup_mode=1
+
+#   Edit auto confirmation.
+#   0 = cancel, 1 = confirm, 2 = ask every time (default).
+    edit_confirm=1
+
+#   Restore Backup confirmation.
+#   0 = cancel, 1 = confirm, 2 = ask every time (default).
+    restore_confirm=1
+
+#   Loop mode - return to main menu after editing or restoring backup.
+#   0 = exit after action, 1 = main menu after action (default)
+    loop_mode=0
+#╰───────────────────────────────────────────────────────────────────────╯
+
+main () {
+    option=0
+    while [ $option -ne 3 ]; do
+        clear
+        printf "╭─────────────────────────────────────────╮\n"
+        printf "  1: edit    2: restore backup    3: exit  \n"
+        printf "╰─────────────────────────────────────────╯\n"
+
+        read -p ">  Select an option : " option
+        echo ""
+
+        case $option in
+            1 | "edit") select_file; backup_file; edit_file ;;
+            2 | "restore backup" | "restore") select_file; restore_backup ;;
+            3 | "exit") break ;;
+            *) main ;;
+        esac
+
+        if [ $loop_mode -eq 0 ]; then
+            break
+        fi
+    done
+}
+
+select_file () {
+    clear
+    printf "╭────────────────────────────────────╮\n"
+    printf "  1: zshrc    2: neofetch    3: p10k  \n"
+    printf "╰────────────────────────────────────╯\n"
+
+    read -p ">  Select a file : " file
+
+    case $file in
+        1 | "zshrc" | "zsh")
+            path="/home/$USER/.zshrc"
+            backup_path="/home/$USER/.zshrc.backup"
+            ;;
+
+        2 | "neofetch" | "nf")
+            path="/home/$USER/.config/neofetch/config.conf"
+            backup_path="/home/$USER/.config/neofetch/config.conf.backup"
+            ;;
+
+        3 | "p10k" | "pk")
+            path="/home/$USER/.p10k.zsh"
+            backup_path="/home/$USER/.p10k.zsh.backup"
+            ;;
+
+        *) select_file ;;
+    esac
+}
+
+backup_file () {
+    if [ $backup_mode -eq 1 ]; then
+        cp $path $backup_path
+    elif [ $backup_mode -eq 2 ]; then
+        printf "\n>  Backup [%s] to [%s] [y/n] : " $path $backup_path
+        read backup
+        case $backup in
+            "y" | "yes" | "Y" | "Yes" | "YES") cp $path $backup_path ;;
+            "n" | "no" | "N" | "No" | "NO") ;;
+            *) backup_file ;;
+        esac
+    fi
+}
+
+edit_file () {
+    if [ $edit_confirm -eq 1 ]; then
+        $editor $flags $path
+    elif [ $edit_confirm -eq 2 ]; then
+        printf "\n>  Edit [%s] [y/n] : " $path
+        read edit
+        case $edit in
+            "y" | "yes" | "Y" | "Yes" | "YES") $editor $flags $path ;;
+            "n" | "no" | "N" | "No" | "NO") ;;
+            *) edit_file ;;
+        esac
+    fi
+}
+
+restore_backup () {
+    if [ $restore_confirm -eq 1 ]; then
+        cp $backup_path $path
+    elif [ $restore_confirm -eq 2 ]; then
+        printf "\n>  Restore [%s] from [%s] [y/n] : " $path $backup_path
+        read restore
+        case $restore in
+            "y" | "yes" | "Y" | "Yes" | "YES") cp $backup_path $path ;;
+            "n" | "no" | "N" | "No" | "NO") ;;
+            *) restore_backup ;;
+        esac
+    fi
+}
+
+main
+clear
