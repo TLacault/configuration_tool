@@ -1,121 +1,132 @@
 #!/bin/bash
 
-#╭──────────────────────────── Configuration ────────────────────────────╮
-#   Editor to use for the configuration files.
-#   Default is : emacs -nw
-    editor=emacs
-    flags=-nw
+source tool.conf
 
-#   Backup mode before editing.
-#   0 = never backup, 1 = always backup, 2 = ask every time (default).
-    backup_mode=2
+main_menu () {
+    clear
+    printf "╭────────────────────────────╮  ╭────────────────────────────────────────────────╮\n"
+    printf "│ Welcome to DotFile Manager │  │ https://github.com/TLacault/configuration_tool │\n"
+    printf "╰────────────────────────────╯  ╰────────────────────────────────────────────────╯\n"
+    printf "╭───────────────────╮  ╭───────────────────╮  ╭─────────────────────╮  ╭─────────╮\n"
+    printf "│ 1) Config DotFile │  │ 2) Upload DotFile │  │ 3) Download DotFile │  │ 4) Exit │\n"
+    printf "╰───────────────────╯  ╰───────────────────╯  ╰─────────────────────╯  ╰─────────╯\n"
+    printf "\n>  Select an option : "
+    read option
+    case $option in
+        1) select_file; config_menu ;;
+        2) ;;
+        3) ;;
+        4) exit ;;
+        *) main ;;
+    esac
+    if [ $loop_mode -eq 1 ]; then
+        menu
+    fi
+}
 
-#   Edit auto confirmation.
-#   0 = cancel, 1 = confirm, 2 = ask every time (default).
-    edit_confirm=2
+config_menu () {
+    clear
+    printf ">>  Curently editing : \033[1m$file_path\033[0m\n"
+    printf "╭──────────────╮  ╭────────────────╮  ╭───────────────────╮  ╭─────────╮\n"
+    printf "│ 1) Edit File │  │ 2) Backup File │  │ 3) Restore backup │  │ 4) Back │\n"
+    printf "╰──────────────╯  ╰────────────────╯  ╰───────────────────╯  ╰─────────╯\n"
+    printf "\n>  Select an option : "
+    read option
+    case $option in
+        1) edit_file ;;
+        2) backup_file ;;
+        3) restore_file ;;
+        4) main_menu ;;
+        *) file_menu ;;
+    esac
+}
 
-#   Restore Backup confirmation.
-#   0 = cancel, 1 = confirm, 2 = ask every time (default).
-    restore_confirm=2
+list_files () {
+    printf ">>  \033[1m[$1]\033[0m DotFiles\n\n"
+    colorls -a --sd $1
+    printf "\n"
+}
 
-#   Loop mode - return to main menu after editing or restoring backup.
-#   0 = exit after action, 1 = main menu after action (default)
-    loop_mode=1
-#╰───────────────────────────────────────────────────────────────────────╯
-
-main () {
-    option=0
-    while [ $option -ne 3 ]; do
-        clear
-        printf "╭─────────────────────────────────────────╮\n"
-        printf "  1: edit    2: restore backup    3: exit  \n"
-        printf "╰─────────────────────────────────────────╯\n"
-
-        read -p ">  Select an option : " option
-        echo ""
-
-        case $option in
-            1 | "edit") select_file; backup_file; edit_file ;;
-            2 | "restore backup" | "restore") select_file; restore_backup ;;
-            3 | "exit") break ;;
-            *) main ;;
-        esac
-
-        if [ $loop_mode -eq 0 ]; then
-            break
-        fi
-    done
+clean_path () {
+    if [ "${file_path##*/}" == "." ]; then
+        file_path="${file_path%/*}"
+    elif [ "${file_path##*/}" == ".." ]; then
+        file_path="${file_path%/*}"
+        file_path="${file_path%/*}"
+    fi
 }
 
 select_file () {
     clear
-    printf "╭────────────────────────────────────╮\n"
-    printf "  1: zshrc    2: neofetch    3: p10k  \n"
-    printf "╰────────────────────────────────────╯\n"
 
-    read -p ">  Select a file : " file
+    list_files "/home/$USER/"
+    list_files "/home/$USER/.config/"
 
-    case $file in
-        1 | "zshrc" | "zsh")
-            path="/home/$USER/.zshrc"
-            backup_path="/home/$USER/.zshrc.backup"
-            ;;
+    printf ">  Select a file / folder : "
+    read file
 
-        2 | "neofetch" | "nf")
-            path="/home/$USER/.config/neofetch/config.conf"
-            backup_path="/home/$USER/.config/neofetch/config.conf.backup"
-            ;;
-
-        3 | "p10k" | "pk")
-            path="/home/$USER/.p10k.zsh"
-            backup_path="/home/$USER/.p10k.zsh.backup"
-            ;;
-
-        *) select_file ;;
-    esac
-}
-
-backup_file () {
-    if [ $backup_mode -eq 1 ]; then
-        cp $path $backup_path
-    elif [ $backup_mode -eq 2 ]; then
-        printf "\n>  Backup [%s] to [%s] [y/n] : " $path $backup_path
-        read backup
-        case $backup in
-            "y" | "yes" | "Y" | "Yes" | "YES") cp $path $backup_path ;;
-            "n" | "no" | "N" | "No" | "NO") ;;
-            *) backup_file ;;
-        esac
+    if [ -e "/home/$USER/$file" ]; then
+        file_path="/home/$USER/$file"
+    elif [ -e "/home/$USER/.config/$file" ]; then
+        file_path="/home/$USER/.config/$file"
+    else
+        select_file
     fi
+
+    while [ -d "$file_path" ]; do
+        clear
+        clean_path
+        list_files "$file_path"
+        printf "\n>  Select a file / folder : "
+        read file
+        if [ -e "$file_path/$file" ]; then
+            file_path="$file_path/$file"
+            backup_path="$file_path.backup"
+        fi
+    done
 }
 
 edit_file () {
     if [ $edit_confirm -eq 1 ]; then
-        $editor $flags $path
+        $editor $flags $file_path
     elif [ $edit_confirm -eq 2 ]; then
-        printf "\n>  Edit [%s] [y/n] : " $path
+        printf "\n>  Edit [%s] [y/n] : " $file_path
         read edit
         case $edit in
-            "y" | "yes" | "Y" | "Yes" | "YES") $editor $flags $path ;;
+            "y" | "yes" | "Y" | "Yes" | "YES") $editor $flags $file_path ;;
             "n" | "no" | "N" | "No" | "NO") ;;
             *) edit_file ;;
         esac
     fi
 }
 
+backup_file () {
+    if [ $backup_mode -eq 1 ]; then
+        cp $file_path $backup_path
+    elif [ $backup_mode -eq 2 ]; then
+        printf "\n>  Backup [%s] to [%s] [y/n] : " $file_path $backup_path
+        read backup
+        case $backup in
+            "y" | "yes" | "Y" | "Yes" | "YES") cp $file_path $backup_path ;;
+            "n" | "no" | "N" | "No" | "NO") ;;
+            *) backup_file ;;
+        esac
+    fi
+}
+
 restore_backup () {
     if [ $restore_confirm -eq 1 ]; then
-        cp $backup_path $path
+        cp $backup_path $file_path
     elif [ $restore_confirm -eq 2 ]; then
-        printf "\n>  Restore [%s] from [%s] [y/n] : " $path $backup_path
+        printf "\n>  Restore [%s] from [%s] [y/n] : " $file_path $backup_path
         read restore
         case $restore in
-            "y" | "yes" | "Y" | "Yes" | "YES") cp $backup_path $path ;;
+            "y" | "yes" | "Y" | "Yes" | "YES") cp $backup_path $file_path ;;
             "n" | "no" | "N" | "No" | "NO") ;;
             *) restore_backup ;;
         esac
     fi
 }
 
-main
+main_menu
 clear
