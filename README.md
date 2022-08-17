@@ -6,7 +6,7 @@
   </a>
 
   <h2 align="center">README</h2>
-  <h3 align="center">Configuration Tool</h3>
+  <h3 align="center">DotFile Manager</h3>
 
 </p>
 
@@ -38,12 +38,12 @@
 <!-- Project Description -->
 ## Project Description
 
-* <strong>The objective of this project is to create a tool that could make configuration a bit easier.
+* <strong>The objective of this project is to create a tool that could make configuration and dotfiles management easier.\\n
 Some of the features I want to add :
-    - auto saving dotfiles, upload them on a git repo.
-    - edit dotfiles / configuration files via a menu.
-    - copy dotfiles from a git repo and apply them to local machine.
-    - auto install dependencies for external dotfiles.</strong>
+  - auto saving dotfiles, upload them on a git repo.
+  - edit dotfiles / configuration files via a menu.
+  - copy dotfiles from a git repo and apply them to local machine.
+  - auto install dependencies for external dotfiles.</strong>
 
 * <strong>I will continue to update this script till these features are implemented.</strong>
 
