@@ -38,7 +38,7 @@
 <!-- Project Description -->
 ## Project Description
 
-* <strong>The objective of this project is to create a tool that could make configuration and dotfiles management easier.\\n
+* <strong>The objective of this project is to create a tool that could make configuration and dotfiles management easier.
 Some of the features I want to add :
   - auto saving dotfiles, upload them on a git repo.
   - edit dotfiles / configuration files via a menu.
