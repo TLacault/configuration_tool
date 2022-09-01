@@ -1,0 +1,166 @@
+#!/bin/bash
+
+source conf/manager.conf
+
+main_menu () {
+    clear
+    printf "╭────────────────────────────╮                               ╭─────────╮\n"
+    printf "│ Welcome to DotFile Manager │                               │ e) Exit │\n"
+    printf "╰────────────────────────────╯                               ╰─────────╯\n"
+    printf "╭────────────────╮  ╭───────────────────────╮  ╭───────────────────────╮\n"
+    printf "│ s) Search Tool │  │ f) Favourite DotFiles │  │ t) Tool Configuration │\n"
+    printf "╰────────────────╯  ╰───────────────────────╯  ╰───────────────────────╯\n"
+    printf "╭────────────────────╮  ╭────────────────────╮  ╭──────────────────────╮\n"
+    printf "│ c) Config DotFiles │  │ u) Upload DotFiles │  │ d) Download DotFiles │\n"
+    printf "╰────────────────────╯  ╰────────────────────╯  ╰──────────────────────╯\n"
+    printf "\n➜ Select an option : "
+    read option
+    case $option in
+        s) search_tool ;;
+        f) favourite_dotfiles ;;
+        t) tool_configuration ;;
+        c) select_file; config_menu ;;
+        u) select_file; upload_menu ;;
+        d) download_menu ;;
+        e) exit ;;
+        *) main ;;
+    esac
+    if [ $loop_mode -eq 1 ]; then
+        menu
+    fi
+}
+
+config_menu () {
+    clear
+    printf "╭──────────────────╮\n"
+    printf "│ Curently Editing │  ➤  \033[1m$file_path\033[0m\n"
+    printf "╰──────────────────╯\n"
+    printf "╭──────────────╮  ╭────────────────╮  ╭───────────────────╮  ╭───────────╮\n"
+    printf "│ e) Edit File │  │ b) Backup File │  │ r) Restore Backup │  │ c) Cancel │\n"
+    printf "╰──────────────╯  ╰────────────────╯  ╰───────────────────╯  ╰───────────╯\n"
+    printf "\n➜ Select an option : "
+    read option
+    case $option in
+        e) edit_file ;;
+        b) backup_file ;;
+        r) restore_file ;;
+        c) main_menu ;;
+        *) config_menu ;;
+    esac
+}
+
+search_menu () {
+    clear
+    printf "╭─────────────╮\n"
+    printf "│ Search Tool │\n"
+    printf "╰─────────────╯\n"
+}
+
+list_files () {
+    printf "Directory ➤ \033[1m[$1]\033[0m\n\n"
+    colorls -a --sd $1
+    printf "\n"
+}
+
+clean_path () {
+    if [ "${file_path##*/}" == "." ]; then
+        file_path="${file_path%/*}"
+    elif [ "${file_path##*/}" == ".." ]; then
+        file_path="${file_path%/*}"
+        file_path="${file_path%/*}"
+    fi
+}
+
+select_file () {
+    clear
+
+    list_files "/home/$USER/"
+    list_files "/home/$USER/.config/"
+
+    printf "➜ Select a file / folder : "
+    read file
+
+    if [ -e "/home/$USER/$file" ]; then
+        file_path="/home/$USER/$file"
+    elif [ -e "/home/$USER/.config/$file" ]; then
+        file_path="/home/$USER/.config/$file"
+    else
+        select_file
+    fi
+
+    while [ -d "$file_path" ]; do
+        clear
+        clean_path
+        list_files "$file_path"
+        printf "\n❯ Select a file / folder : "
+        read file
+        if [ -e "$file_path/$file" ]; then
+            file_path="$file_path/$file"
+            backup_path="$file_path.backup"
+        fi
+    done
+}
+
+edit_file () {
+    if [ $edit_confirm -eq 1 ]; then
+        $editor $flags $file_path
+    elif [ $edit_confirm -eq 2 ]; then
+        printf "\n➜ Edit [%s] [y/n] : " $file_path
+        read edit
+        case $edit in
+            "y" | "yes" | "Y" | "Yes" | "YES") $editor $flags $file_path ;;
+            "n" | "no" | "N" | "No" | "NO") config_menu;;
+            *) edit_file ;;
+        esac
+    fi
+}
+
+backup_file () {
+    if [ $backup_mode -eq 1 ]; then
+        cp $file_path $backup_path
+    elif [ $backup_mode -eq 2 ]; then
+        printf "\n➜ Backup [%s] to [%s] [y/n] : " $file_path $backup_path
+        read backup
+        case $backup in
+            "y" | "yes" | "Y" | "Yes" | "YES") cp $file_path $backup_path ;;
+            "n" | "no" | "N" | "No" | "NO") ;;
+            *) backup_file ;;
+        esac
+    fi
+}
+
+restore_backup () {
+    if [ $restore_confirm -eq 1 ]; then
+        cp $backup_path $file_path
+    elif [ $restore_confirm -eq 2 ]; then
+        printf "\n➜ Restore [%s] from [%s] [y/n] : " $file_path $backup_path
+        read restore
+        case $restore in
+            "y" | "yes" | "Y" | "Yes" | "YES") cp $backup_path $file_path ;;
+            "n" | "no" | "N" | "No" | "NO") ;;
+            *) restore_backup ;;
+        esac
+    fi
+}
+
+search_tool () {
+    # ask the user to enter a file name and display all matching files in /home/$USER/.config/
+    printf "➜ Enter a file name : "
+    read file_name
+    clear
+    printf "Searching for [%s] in /home/$USER/\n" $file_name
+
+    # list all files whose name contains file_name in /home/$USER/
+    colorls -a --sd /home/$USER/ | grep $file_name
+    printf "\n"
+    printf "➜ Select a file : "
+    read file
+    if [ -e "/home/$USER/.config/$file" ]; then
+        file_path="/home/$USER/.config/$file"
+    else
+        search_tool
+    fi
+}
+
+main_menu
+clear
