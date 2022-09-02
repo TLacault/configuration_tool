@@ -16,10 +16,10 @@ main_menu () {
     printf "\n➜ Select an option : "
     read option
     case $option in
-        s) search_tool ;;
+        s) search_menu ;;
         f) favourite_dotfiles ;;
         t) tool_configuration ;;
-        c) select_file; config_menu ;;
+        c) select_file; edit_menu ;;
         u) select_file; upload_menu ;;
         d) download_menu ;;
         e) exit ;;
@@ -30,7 +30,7 @@ main_menu () {
     fi
 }
 
-config_menu () {
+edit_menu () {
     clear
     printf "╭──────────────────╮\n"
     printf "│ Curently Editing │  ➤  \033[1m$file_path\033[0m\n"
@@ -54,6 +54,45 @@ search_menu () {
     printf "╭─────────────╮\n"
     printf "│ Search Tool │\n"
     printf "╰─────────────╯\n"
+    # ask the user to enter a file name and display all matching files in /home/$USER/.config/
+    printf "\n➜ Search for a file : "
+    read file_name
+    clear
+    printf "╭─────────────────────╮\n"
+    printf "│ Corresponding Files │\n"
+    printf "╰─────────────────────╯\n"
+    colorls -a --sd /home/$USER | grep $file_name
+    colorls -a --sd /home/$USER/.config/ | grep $file_name
+
+    # if [ -e /home/$USER/$file_name ]; then
+    #     file_path=/home/$USER/
+    #     echo "FOUND IN USR"
+    #     echo $file_path/$file_name
+    # elif [ -e /home/$USER/.config/$file_name ]; then
+    #     file_path=/home/$USER/.config/
+    #     echo "FOUND IN CONFIG"
+    #     echo $file_path/$file_name
+    # else
+    #     echo "NOT FOUND"
+    #     echo $file_path/$file_name
+    #     exit
+    # fi
+
+
+    while [ ! -f file_path ]; do
+        printf "\n➜ Select a file / directory : "
+        read file
+        if [ -e "/home/$USER/.config/$file" ]; then
+            file_path="/home/$USER/.config/$file"
+            break
+        elif [ -e "/home/$USER/$file" ]; then
+            file_path="/home/$USER/$file"
+            break
+        else
+            search_menu
+        fi
+    done
+    edit_menu
 }
 
 list_files () {
@@ -140,25 +179,6 @@ restore_backup () {
             "n" | "no" | "N" | "No" | "NO") ;;
             *) restore_backup ;;
         esac
-    fi
-}
-
-search_tool () {
-    # ask the user to enter a file name and display all matching files in /home/$USER/.config/
-    printf "➜ Enter a file name : "
-    read file_name
-    clear
-    printf "Searching for [%s] in /home/$USER/\n" $file_name
-
-    # list all files whose name contains file_name in /home/$USER/
-    colorls -a --sd /home/$USER/ | grep $file_name
-    printf "\n"
-    printf "➜ Select a file : "
-    read file
-    if [ -e "/home/$USER/.config/$file" ]; then
-        file_path="/home/$USER/.config/$file"
-    else
-        search_tool
     fi
 }
 
