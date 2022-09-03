@@ -71,7 +71,7 @@ search_menu () {
         fi
         printf "\n➜ Select a file : "
         read file_name
-        if [ -e $file_path/$file ]; then
+        if [ -e $file_path/$file_name ]; then
             file_path=$file_path$file_name
             if [ -d $file_path ]; then
                 file_path=$file_path/
