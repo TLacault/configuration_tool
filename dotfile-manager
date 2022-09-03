@@ -64,23 +64,18 @@ search_menu () {
         printf "╭────────────────────────╮\n"
         printf "│ Corresponding Files In │  ➤  \033[1m$file_path\033[0m\n"
         printf "╰────────────────────────╯\n\n"
-
         if [ "$file_name" == "$(basename $file_path)" ]; then
             colorls -a --sd $file_path
         else
             list_files $file_path $file_name 1
         fi
-
         printf "\n➜ Select a file : "
         read file_name
         if [ -e $file_path/$file ]; then
             file_path=$file_path$file_name
-            echo "FP1 : $file_path"
             if [ -d $file_path ]; then
                 file_path=$file_path/
-                echo "FP2 : $file_path"
             elif [ -f $file_path ]; then
-                echo "TEST1"
                 edit_menu
                 break
             fi
