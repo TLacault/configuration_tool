@@ -17,7 +17,7 @@ main_menu () {
     read option
     case $option in
         s) search_menu ;;
-        f) favourite_dotfiles ;;
+        f) favourite_dotfiles; main_menu ;;
         t) tool_configuration ;;
         c) select_file; edit_menu ;;
         u) select_file; upload_menu ;;
